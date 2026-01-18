@@ -1,4 +1,4 @@
-package com.example.predict_numbers.entity;
+package com.example.predict_numbers.configuration;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

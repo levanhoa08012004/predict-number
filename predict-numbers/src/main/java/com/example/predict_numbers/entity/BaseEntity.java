@@ -12,6 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @MappedSuperclass
+
 public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

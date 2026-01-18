@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -25,10 +26,16 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true, nullable = false)
     String username;
 
+    @Column(nullable = false)
     String password;
 
+    @Column(nullable = false)
+    String email;
+
+    @Column(nullable = false)
     int score = 0;
 
+    @Column(nullable = false)
     int turns = 0;
 
     @ManyToOne
@@ -57,10 +64,10 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(
-                new SimpleGrantedAuthority(String.format("ROLE_%s", this.role.getName())));
-        return authorities;
+        return role.getPermissions()
+                .stream()
+                .map(p -> new SimpleGrantedAuthority(p.getName()))
+                .collect(Collectors.toSet());
     }
 
 }

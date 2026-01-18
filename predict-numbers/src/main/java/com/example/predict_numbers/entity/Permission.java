@@ -21,19 +21,8 @@ public class Permission extends BaseEntity{
     @Column(nullable = false, unique = true, length = 100)
     String name;
 
-    @Column(nullable = false, length = 255)
-    String apiPath;
 
-
-    @Column(nullable = false, length = 10)
-    String method;
-
-
-    @Column(nullable = false, length = 50)
-    String module;
-
-
-    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.EAGER)
     @JsonIgnore
     Set<Role> roles;
 

@@ -25,11 +25,8 @@ public class Role extends BaseEntity {
     @Column(length = 255)
     String description;
 
-    @Column(nullable = false)
-    boolean active = true;
 
-
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
