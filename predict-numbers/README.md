@@ -1,4 +1,4 @@
-# Predict Numbers - Hướng dẫn sử dụng
+# Predict Numbers 
 
 Một ứng dụng Spring Boot với chức năng quản lý người dùng, phân quyền, và tích hợp thanh toán VnPay.
 
@@ -15,7 +15,7 @@ Một ứng dụng Spring Boot với chức năng quản lý người dùng, ph�
 
 ```bash
 # Clone từ repository
-git clone <your-repo-url>
+git clone https://github.com/levanhoa08012004/predict-number.git
 cd predict-numbers
 
 # Hoặc giải nén file nếu là zip
@@ -26,10 +26,139 @@ cd predict-numbers
 Tạo database mới:
 
 ```sql
-CREATE DATABASE `predict-numbers` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+/* =========================
+   CREATE DATABASE
+========================= */
+DROP DATABASE IF EXISTS `predict-numbers`;
+CREATE DATABASE `predict-numbers`
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE `predict-numbers`;
+
+/* =========================
+   TABLE: roles
+========================= */
+CREATE TABLE roles (
+                       id BIGINT NOT NULL AUTO_INCREMENT,
+                       created_at DATETIME(6),
+                       updated_at DATETIME(6),
+                       active BIT(1) NOT NULL,
+                       description VARCHAR(255),
+                       name VARCHAR(50) NOT NULL,
+                       PRIMARY KEY (id),
+                       UNIQUE KEY UK_roles_name (name)
+) ENGINE=InnoDB;
+
+/* =========================
+   TABLE: permissions
+========================= */
+CREATE TABLE permissions (
+                             id BIGINT NOT NULL AUTO_INCREMENT,
+                             created_at DATETIME(6),
+                             updated_at DATETIME(6),
+                             name VARCHAR(100) NOT NULL,
+                             PRIMARY KEY (id),
+                             UNIQUE KEY UK_permissions_name (name)
+) ENGINE=InnoDB;
+
+/* =========================
+   TABLE: role_permissions
+========================= */
+CREATE TABLE role_permissions (
+                                  role_id BIGINT NOT NULL,
+                                  permission_id BIGINT NOT NULL,
+                                  PRIMARY KEY (role_id, permission_id),
+                                  CONSTRAINT FK_rp_role FOREIGN KEY (role_id) REFERENCES roles(id),
+                                  CONSTRAINT FK_rp_permission FOREIGN KEY (permission_id) REFERENCES permissions(id)
+) ENGINE=InnoDB;
+
+/* =========================
+   TABLE: users
+========================= */
+CREATE TABLE users (
+                       id BIGINT NOT NULL AUTO_INCREMENT,
+                       created_at DATETIME(6),
+                       updated_at DATETIME(6),
+                       password VARCHAR(255),
+                       score INT NOT NULL,
+                       turns INT NOT NULL,
+                       username VARCHAR(255) NOT NULL,
+                       role_id BIGINT NOT NULL,
+                       email VARCHAR(255) NOT NULL,
+                       PRIMARY KEY (id),
+                       UNIQUE KEY UK_users_username (username),
+                       KEY idx_users_leaderboard (score DESC, updated_at, id),
+                       CONSTRAINT FK_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
+) ENGINE=InnoDB;
+
+/* =========================
+   TABLE: tokens
+========================= */
+CREATE TABLE tokens (
+                        id BIGINT NOT NULL AUTO_INCREMENT,
+                        created_at DATETIME(6),
+                        updated_at DATETIME(6),
+                        access_token VARCHAR(255),
+                        refresh_token VARCHAR(255),
+                        username VARCHAR(255),
+                        PRIMARY KEY (id),
+                        UNIQUE KEY UK_tokens_username (username)
+) ENGINE=InnoDB;
+
+/* =========================
+   INSERT DATA: roles
+========================= */
+INSERT INTO roles VALUES
+    (2,'2026-01-16 15:12:10.495277','2026-01-17 04:56:24.139641',_binary '\0','Role user','USER');
+
+/* =========================
+   INSERT DATA: permissions
+========================= */
+INSERT INTO permissions VALUES
+                            (2,'2026-01-16 15:05:07.174680','2026-01-16 15:05:07.174680','PERMISSION:READ'),
+                            (3,'2026-01-16 15:05:16.477316','2026-01-16 15:05:16.477316','PERMISSION:CREATE'),
+                            (4,'2026-01-16 15:05:20.455062','2026-01-16 15:05:20.455062','PERMISSION:UPDATE'),
+                            (5,'2026-01-16 15:05:24.241560','2026-01-16 15:05:24.241560','PERMISSION:DELETE'),
+                            (6,'2026-01-16 15:05:31.787397','2026-01-16 15:05:31.787397','PERMISSION:READ:ALL'),
+                            (7,'2026-01-16 15:05:46.358864','2026-01-16 15:05:46.358864','USER:READ:ALL'),
+                            (8,'2026-01-16 15:05:50.279670','2026-01-16 15:05:50.279670','USER:READ'),
+                            (9,'2026-01-16 15:05:54.773601','2026-01-16 15:05:54.773601','USER:CREATE'),
+                            (10,'2026-01-16 15:05:59.494903','2026-01-16 15:05:59.494903','USER:UPDATE'),
+                            (13,'2026-01-17 04:48:18.204185','2026-01-17 04:48:18.204185','USER:BUYTURN'),
+                            (14,'2026-01-17 04:48:30.250971','2026-01-17 04:48:30.250971','USER:PREDICT'),
+                            (15,'2026-01-17 04:52:25.653566','2026-01-17 04:52:25.653566','ROLE:CREATE'),
+                            (16,'2026-01-17 04:52:30.831920','2026-01-17 04:52:30.831920','ROLE:UPDATE'),
+                            (17,'2026-01-17 04:52:37.098377','2026-01-17 04:52:37.098377','ROLE:READ'),
+                            (18,'2026-01-17 04:52:41.548913','2026-01-17 04:52:41.548913','ROLE:READ:ALL'),
+                            (19,'2026-01-17 04:52:53.146159','2026-01-17 04:52:53.146159','ROLE:DELETE');
+
+/* =========================
+   INSERT DATA: role_permissions
+========================= */
+INSERT INTO role_permissions VALUES
+                                 (2,2),(2,3),(2,4),(2,5),(2,6),(2,7),(2,8),(2,9),
+                                 (2,10),(2,13),(2,14),(2,15),(2,16),(2,17),(2,18),(2,19);
+
+/* =========================
+   INSERT DATA: users
+========================= */
+INSERT INTO users VALUES
+    (1,'2026-01-16 15:22:48.522370','2026-01-18 15:40:02.744499',
+     '$2a$10$SIOFYiECkI0tB3uVTFOwDO6BjP6W1gMtKAV/wD6WOv458ky/kU/KG',
+     8,0,'hoa123',2,'hoa@gmail.com');
+
+/* =========================
+   INSERT DATA: tokens
+========================= */
+INSERT INTO tokens VALUES
+    (1,'2026-01-18 16:21:19.880056','2026-01-18 16:21:19.880056',
+     'access-token','refresh-token','hoa123');
 ```
 
-**Lưu ý**: Database sẽ tự động tạo bảng khi ứng dụng khởi động (do `ddl-auto: update` trong `application.yaml`).
+**Lưu ý**: 
+    Password cho user là : 12345678,
+    Database sẽ tự động tạo bảng khi ứng dụng khởi động (do `ddl-auto: update` trong `application.yaml`).
 
 ### 3. Cấu hình database và JWT
 
@@ -54,32 +183,7 @@ jwt:
 
 ## Build & Run Project
 
-### Cách 1: Chạy trực tiếp với Maven
-
-```bash
-# Build project
-mvn clean install
-
-# Chạy ứng dụng
-mvn spring-boot:run
-```
-
-### Cách 2: Sử dụng Maven Wrapper (không cần cài Maven)
-
-**Windows:**
-```bash
-mvnw.cmd clean install
-mvnw.cmd spring-boot:run
-```
-
-**Linux/Mac:**
-```bash
-chmod +x mvnw
-./mvnw clean install
-./mvnw spring-boot:run
-```
-
-### Cách 3: Chạy file JAR
+### Chạy file JAR
 
 ```bash
 # Build JAR file
@@ -91,282 +195,30 @@ java -jar target/predict-numbers-0.0.1-SNAPSHOT.jar
 
 **Ứng dụng sẽ khởi động trên**: `http://localhost:8080`
 
-## Xác thực (Authentication)
+## Mô tả cách lấy token/đăng nhập.
 
-Ứng dụng sử dụng **JWT (JSON Web Token)** để xác thực. Bạn cần lấy token trước khi gọi các API được bảo vệ.
 
-### Quy trình Xác thực
+### Quy trình đăng nhập
 
-1. **Đăng ký tài khoản** (nếu chưa có) hoặc sử dụng tài khoản hiện có
-2. **Đăng nhập** để lấy `accessToken` và `refreshToken`
-3. **Sử dụng token** trong header `Authorization: Bearer <accessToken>` khi gọi API
-4. **Khi token hết hạn**, dùng `refreshToken` để lấy token mới
+1. Người dùng gửi username và password lên server
+2. AuthenticationManager gọi UserDetailsService để lấy thông tin người dùng từ database
+3. Spring Security so sánh password bằng PasswordEncoder
+4. Nếu xác thực thành công, Authentication được tạo và chứa UserDetails
+5. Hệ thống tạo access token và refresh token từ thông tin UserDetails
+6. Access token và Refresh token có thể được lưu vào database 
+7. Server trả access token và refresh token cho client
 
-### Lưu Token
+### Quy trình xác thực và phân quyền
 
-Sau khi đăng nhập thành công, lưu `accessToken`:
+1. Mỗi request gọi đến API được bảo vệ phải gửi kèm header: Authorization: Bearer <accessToken>
 
-**Dùng Postman:**
-- Copy giá trị `accessToken` từ response
-- Chọn tab **Authorization** → Type: **Bearer Token**
-- Paste token vào field **Token**
+2. PreFilter (JWT Filter) được thực thi trước UsernamePasswordAuthenticationFilter.
 
-**Dùng curl:**
-```bash
-accessToken="eyJhbGciOiJIUzUxMiJ9..."
-curl -H "Authorization: Bearer $accessToken" http://localhost:8080/users
-```
+3. Filter trích xuất accessToken từ header
 
-**Dùng insomnia:**
-- Chọn **Auth** → **Bearer Token**
-- Paste token
+4. Kiểm tra accessToken có rỗng hay có Bearer không sau 
+5. Lấy username từ token kiểm tra user đó có rỗng hay request hiện tại chưa được xác thực
+6. Query database để lấy thông tin UserDetails và kiểm tra xem thông tin user có khớp và token có còn hạn không 
+7. Tạo Authentication chứa UserDetails và danh sách permission vào SecurityContextHolder
+8. Khi phân quyền thì sẽ lấy danh sách quyền trong SecurityContextHolder và dùng @PreAuthorize("hasAuthority('')") để cấp quyền
 
-## Hướng dẫn Test API
-
-Sử dụng **Postman**, **Insomnia**, hoặc **curl** để test các API dưới đây.
-
-### 1. Đăng ký (Register)
-
-**POST** `http://localhost:8080/auth/register`
-
-```json
-{
-  "username": "testuser",
-  "password": "password123",
-  "fullName": "Test User",
-  "email": "test@example.com"
-}
-```
-
-**Response** (201 Created):
-```json
-{
-  "code": 201,
-  "message": "Successfully registered",
-  "data": {
-    "id": 1,
-    "username": "testuser",
-    "email": "test@example.com",
-    "fullName": "Test User",
-    "createdAt": "2026-01-18T10:00:00"
-  }
-}
-```
-
-### 2. Đăng nhập (Login) - Lấy Token
-
-**POST** `http://localhost:8080/auth/login`
-
-```json
-{
-  "username": "testuser",
-  "password": "password123"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "code": 200,
-  "message": "Successfully logged in",
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzUxMiJ9...",
-    "refreshToken": "eyJhbGciOiJIUzUxMiJ9...",
-    "expiryDate": "2026-01-18T11:00:00"
-  }
-}
-```
-
-**Lưu lại `accessToken` để sử dụng cho các API khác**
-
-### 3. Refresh Token
-
-**POST** `http://localhost:8080/auth/refresh`
-
-**Header**:
-```
-Authorization: Bearer <refreshToken>
-```
-
-**Response** (200 OK): Nhận token mới
-
-### 4. Quản lý Người dùng
-
-#### Lấy danh sách người dùng
-
-**GET** `http://localhost:8080/users`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-#### Lấy chi tiết người dùng
-
-**GET** `http://localhost:8080/users/{userId}`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-#### Cập nhật người dùng
-
-**PUT** `http://localhost:8080/users/{userId}`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-**Body**:
-```json
-{
-  "email": "newemail@example.com",
-  "fullName": "Updated Name"
-}
-```
-
-#### Xoá người dùng
-
-**DELETE** `http://localhost:8080/users/{userId}`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-### 5. Quản lý Role
-
-#### Tạo Role
-
-**POST** `http://localhost:8080/roles`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-**Body**:
-```json
-{
-  "name": "ADMIN",
-  "description": "Administrator role"
-}
-```
-
-#### Lấy danh sách Role
-
-**GET** `http://localhost:8080/roles`
-
-#### Lấy chi tiết Role
-
-**GET** `http://localhost:8080/roles/{roleId}`
-
-### 6. Quản lý Permission
-
-#### Tạo Permission
-
-**POST** `http://localhost:8080/permissions`
-
-**Body**:
-```json
-{
-  "name": "CREATE_USER",
-  "description": "Permission to create user"
-}
-```
-
-#### Lấy danh sách Permission
-
-**GET** `http://localhost:8080/permissions`
-
-### 7. VnPay Integration
-
-#### Tạo đơn hàng VnPay
-
-**POST** `http://localhost:8080/vnpay/create-order`
-
-**Header**:
-```
-Authorization: Bearer <accessToken>
-```
-
-**Body**:
-```json
-{
-  "amount": 100000,
-  "description": "Thanh toán đơn hàng"
-}
-```
-
-#### Kiểm tra kết quả thanh toán
-
-**GET** `http://localhost:8080/vnpay/payment-callback?vnp_ResponseCode=00&...`
-
-## Cấu trúc Project
-
-```
-predict-numbers/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/example/predict_numbers/
-│   │   │       ├── configuration/      # Cấu hình (Security, JWT, VnPay)
-│   │   │       ├── controller/         # REST Controllers
-│   │   │       ├── dto/               # Request/Response DTOs
-│   │   │       ├── entity/            # JPA Entities
-│   │   │       ├── exception/         # Exception handling
-│   │   │       ├── mapper/            # MapStruct mappers
-│   │   │       ├── repository/        # JPA Repositories
-│   │   │       ├── service/           # Business logic
-│   │   │       └── util/              # Utilities
-│   │   └── resources/
-│   │       └── application.yaml       # Cấu hình ứng dụng
-│   └── test/
-└── pom.xml
-```
-
-## Các Dependencies chính
-
-- **Spring Boot 3.5.9**: Framework chính
-- **Spring Data JPA**: ORM
-- **Spring Security**: Bảo mật
-- **JWT (JJWT)**: Xác thực token
-- **MapStruct**: Mapping DTO/Entity
-- **Lombok**: Giảm boilerplate code
-- **MySQL**: Database
-- **Validation**: Bean validation
-
-## Troubleshooting
-
-### Lỗi: "Access denied for user 'root'@'localhost'"
-
-**Giải pháp**: Kiểm tra username và password MySQL trong `application.yaml`
-
-### Lỗi: "Database 'predict-numbers' not found"
-
-**Giải pháp**: Tạo database mới (xem phần 2 của Setup)
-
-### Lỗi: "Port 8080 already in use"
-
-**Giải pháp**: Thay đổi port trong `application.yaml`:
-```yaml
-server:
-  port: 8081  # Hoặc port khác
-```
-
-### Lỗi: JWT token expired
-
-**Giải pháp**: Sử dụng API `/auth/refresh` với refresh token để lấy token mới
-
-## Ghi chú
-
-- Mặc định JWT access token hết hạn sau **1 giờ**
-- Refresh token hết hạn sau **15 ngày**
-- Mỗi API cần authentication bắt buộc phải gửi token trong header `Authorization: Bearer <token>`
-- Ứng dụng sẽ tự động tạo bảng database khi chạy lần đầu
-
-## Liên hệ & Hỗ trợ
-
-Nếu gặp vấn đề, vui lòng liên hệ hoặc tạo issue trong repository.
