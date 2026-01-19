@@ -52,5 +52,13 @@ public class AuthenticationController {
                 .build());
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                        .code(HttpStatus.OK.value())
+                        .data(this.authenticationService.logout(request))
+                .build());
+    }
+
 
 }

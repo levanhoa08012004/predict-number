@@ -157,7 +157,6 @@ INSERT INTO tokens VALUES
 ```
 
 **Lưu ý**: 
-    Password cho user là : 12345678,
     Database sẽ tự động tạo bảng khi ứng dụng khởi động (do `ddl-auto: update` trong `application.yaml`).
 
 ### 3. Cấu hình database và JWT
@@ -221,4 +220,62 @@ java -jar target/predict-numbers-0.0.1-SNAPSHOT.jar
 6. Query database để lấy thông tin UserDetails và kiểm tra xem thông tin user có khớp và token có còn hạn không 
 7. Tạo Authentication chứa UserDetails và danh sách permission vào SecurityContextHolder
 8. Khi phân quyền thì sẽ lấy danh sách quyền trong SecurityContextHolder và dùng @PreAuthorize("hasAuthority('')") để cấp quyền
+
+## Cách test Api trên postman
+
+### POST /register
+
+1. url: http://localhost:8080/auth/register
+2. Method: POST
+3. body json: 
+```yaml
+{
+  "username":"hoa234",
+  "password":"12345678",
+  "email": "hoa123@gmail.com"
+}
+```
+
+### POST /login
+
+1. url: http://localhost:8080/auth/login
+2. Method: POST
+3. body json:
+```yaml
+{
+  "username":"hoa123",
+  "password":"12345678"
+}
+```
+
+
+### POST /guess
+
+1. url: http://localhost:8080/user/guess
+2. Method: POST
+3. body json:
+```yaml
+{
+  "guessNumber":2
+}
+```
+4. Vào Authorization chọn Bearer Token và nhập access token 
+
+### GET /buy-turns
+
+1. url: http://localhost:8080/buy-turns
+2. Method: GET
+3. Vào Authorization chọn Bearer Token và nhập access token 
+
+### GET /leaderboard
+
+1. url: http://localhost:8080/users/leaderboard
+2. Method: GET
+3. Vào Authorization chọn Bearer Token và nhập access token 
+
+### GET /me
+
+1. url: http://localhost:8080/users/me
+2. Method: GET
+3. Vào Authorization chọn Bearer Token và nhập access token 
 
