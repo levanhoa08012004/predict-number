@@ -266,7 +266,20 @@ java -jar target/predict-numbers-0.0.1-SNAPSHOT.jar
 1. url: http://localhost:8080/buy-turns
 2. Method: GET
 3. Vào Authorization chọn Bearer Token và nhập access token 
-
+4. Lấy đường dẫn trong data response trả về dán lên trình duyệt
+```yaml
+{
+  "code": 200,
+  "message": "Create method payment success",
+  "data": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=1000000&vnp_BankCode=NCB&vnp_Command=pay&vnp_CreateDate=20260118223920&vnp_CurrCode=VND&vnp_ExpireDate=20260118225420&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang%3Ahoa123_1768750760999&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A8080%2Fvnpay-return&vnp_TmnCode=4YUP19I4&vnp_TxnRef=hoa123_1768750760999&vnp_Version=2.1.0&vnp_SecureHash=9f812c79171c56e13b36dddc03d34fe0806c3afe62c989b67a149fa147dc67329ba3ccbef7f586ca35fb5fc3c00dfcb2e1a86349f39fec2b0cca35989b578a2b"
+}
+```
+5. Nhập thông tin để thanh toán 
+```yaml
+   Số thẻ	        9704198526191432198
+   Tên chủ thẻ	        NGUYEN VAN A
+   Ngày phát hành	07/15
+```
 ### GET /leaderboard
 
 1. url: http://localhost:8080/users/leaderboard
