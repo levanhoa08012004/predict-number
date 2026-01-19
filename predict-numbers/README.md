@@ -279,6 +279,7 @@ java -jar target/predict-numbers-0.0.1-SNAPSHOT.jar
    Số thẻ	        9704198526191432198
    Tên chủ thẻ	        NGUYEN VAN A
    Ngày phát hành	07/15
+   Mật khẩu OTP	        123456
 ```
 ### GET /leaderboard
 
