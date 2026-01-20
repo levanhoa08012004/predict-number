@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -85,12 +86,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public String logout(HttpServletRequest request) {
-        String refreshToken = request.getHeader("x-token");
-        if(StringUtils.isBlank(refreshToken)){
+        final String authorization = request.getHeader("Authorization");
+
+        if(StringUtils.isBlank(authorization) || !authorization.startsWith("Bearer ")) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
+        final String accesstoken = authorization.substring("Bearer ".length());
 
-        final String username = this.jwtService.extractUsername(refreshToken, TokenType.ACCESS_TOKEN);
+        final String username = this.jwtService.extractUsername(accesstoken, TokenType.ACCESS_TOKEN);
 
         Token token = this.tokenService.getByUsername(username);
 

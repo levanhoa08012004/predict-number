@@ -1,7 +1,9 @@
 package com.example.predict_numbers.service.impl;
 
 import com.example.predict_numbers.configuration.UserPrincipal;
+import com.example.predict_numbers.entity.Token;
 import com.example.predict_numbers.service.JwtService;
+import com.example.predict_numbers.service.TokenService;
 import com.example.predict_numbers.util.enums.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,6 +24,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
+    private final TokenService tokenService;
 
     @Value("${jwt.expiryHour}")
     private long expiryHour;
@@ -55,7 +58,26 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isValid(String token, TokenType type, UserDetails userDetails) {
         final String username = extractUsername(token, type);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token, type);
+
+        if (!username.equals(userDetails.getUsername())) {
+            return false;
+        }
+
+        if (isTokenExpired(token, type)) {
+            return false;
+        }
+
+        Token storedToken = tokenService.getByUsername(username);
+
+        if (storedToken == null) {
+            return false;
+        }
+
+        if (type == TokenType.ACCESS_TOKEN) {
+            return token.equals(storedToken.getAccessToken());
+        } else {
+            return token.equals(storedToken.getRefreshToken());
+        }
     }
 
 
