@@ -47,10 +47,7 @@ public class UserServiceImpl implements UserService {
     private static final int MIN_NUMBER = 1;
     private static final int MAX_NUMBER = 5;
 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return username -> this.userRepository.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("user not found"));
-    }
+
 
     @Override
     public UserResponse createUser(CreateUserRequest createUserRequest) {

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity {
 
     @Column(unique = true, nullable = false)
     String username;
@@ -42,32 +42,6 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name="role_id", nullable=false)
     Role role;
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getPermissions()
-                .stream()
-                .map(p -> new SimpleGrantedAuthority(p.getName()))
-                .collect(Collectors.toSet());
-    }
 
 }

@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenService tokenService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public TokenResponse authenticate(SignInRequest signInRequest) {
@@ -68,21 +71,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         final String username = this.jwtService.extractUsername(refreshToken, TokenType.REFRESH_TOKEN);
 
-        Optional<User> user = this.userRepository.findByUsername(username);
-        if(!jwtService.isValid(refreshToken, TokenType.REFRESH_TOKEN,user.get())){
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(username);
+        Long userId = ((UserPrincipal) userDetails).getId();
+        if(!jwtService.isValid(refreshToken, TokenType.REFRESH_TOKEN,userDetails)){
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
-        UserPrincipal principal = new UserPrincipal(user.get().getId(), user.get().getUsername(), user.get().getEmail(), user.get().getPassword(), user.get().getAuthorities());
 
-        String accessToken  = this.jwtService.generateAccessToken(principal);
-        Token token = this.tokenService.getByUsername(user.get().getUsername());
+        String accessToken  = this.jwtService.generateAccessToken(userDetails);
+        Token token = this.tokenService.getByUsername(userDetails.getUsername());
         token.setAccessToken(accessToken);
         this.tokenService.saveToken(token);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .userId(user.get().getId())
+                .userId(userId)
                 .build();
     }
 
@@ -99,8 +103,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         Token token = this.tokenService.getByUsername(username);
 
-        this.tokenService.deleteToken(token);
 
+        if (token != null) {
+            tokenService.deleteToken(token);
+        }
         return "logged out successfully";
     }
 
