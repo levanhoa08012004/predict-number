@@ -74,8 +74,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         UserPrincipal principal = new UserPrincipal(user.get().getId(), user.get().getUsername(), user.get().getEmail(), user.get().getPassword(), user.get().getAuthorities());
 
-
         String accessToken  = this.jwtService.generateAccessToken(principal);
+        Token token = this.tokenService.getByUsername(user.get().getUsername());
+        token.setAccessToken(accessToken);
+        this.tokenService.saveToken(token);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
