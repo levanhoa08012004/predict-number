@@ -56,18 +56,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return webSecurity ->
-                webSecurity
-                        .ignoring()
-                        .requestMatchers(
-                                "/actuator/**",
-                                "/v3/**",
-                                "/webjars/**",
-                                "/swagger-ui*/*swagger-initializer.js",
-                                "/swagger-ui*/**");
-    }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

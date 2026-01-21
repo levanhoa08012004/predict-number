@@ -22,7 +22,7 @@ public class Permission extends BaseEntity{
     String name;
 
 
-    @ManyToMany(mappedBy = "permissions", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     @JsonIgnore
     Set<Role> roles;
 

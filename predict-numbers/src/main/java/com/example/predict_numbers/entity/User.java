@@ -38,7 +38,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     int turns = 0;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="role_id", nullable=false)
     Role role;
 
